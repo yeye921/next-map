@@ -2,19 +2,15 @@ import { useEffect, Dispatch, SetStateAction, useCallback } from 'react';
 
 interface MarkerProps {
   map: any;
-  storeDatas: any[];
+  stores: any[];
   setCurrentStore: Dispatch<SetStateAction<any>>;
 }
 
-export default function Markers({
-  map,
-  storeDatas,
-  setCurrentStore,
-}: MarkerProps) {
+export default function Markers({ map, stores, setCurrentStore }: MarkerProps) {
   const loadKakaoMarkers = useCallback(() => {
     if (map) {
       // 식당 데이터 마커 띄우기
-      storeDatas?.map((store) => {
+      stores?.map((store) => {
         // 마커카 표시될 위치입니다
         var markerPosition = new window.kakao.maps.LatLng(
           store?.y_dnts,
@@ -77,7 +73,7 @@ export default function Markers({
         });
       });
     }
-  }, [map, setCurrentStore, storeDatas]);
+  }, [map, setCurrentStore, stores]);
 
   useEffect(() => {
     loadKakaoMarkers();
