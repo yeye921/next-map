@@ -1,18 +1,24 @@
 import Image from 'next/image';
-import { StoreType } from '@/interface';
+import { StoreApiResponse, StoreType } from '@/interface';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import Loading from '@/components/Loading';
+import { useRouter } from 'next/router';
+import Pagination from '@/components/Pagination';
 
 export default function StoreListPage() {
-  // useQuery로 데이터 가져오기
+  const router = useRouter();
+  const { page = '1' }: any = router.query; // 페이지는 기본적으로 0으로 설정
+
+  // useQuery로 데이터 가져오기 (현재 페이지에 해당하는 데이터를 가져옴)
   const {
     isLoading,
     isError,
     data: stores, // 이렇게 data의 이름을 stores로 지정할 수 있음
-  } = useQuery('stores', async () => {
-    const { data } = await axios('/api/stores');
-    return data as StoreType[];
+  } = useQuery(`stores-${page}`, async () => {
+    // page마다 쿼리키가 달라야 함
+    const { data } = await axios(`/api/stores?page=${page}`);
+    return data as StoreApiResponse;
   });
 
   if (isError) {
@@ -29,7 +35,7 @@ export default function StoreListPage() {
         {isLoading ? (
           <Loading />
         ) : (
-          stores?.map((store, index) => (
+          stores?.data?.map((store, index) => (
             <li className='flex justify-between gap-x-6 py-5' key={index}>
               <div className='flex gap-4'>
                 <Image
@@ -65,6 +71,11 @@ export default function StoreListPage() {
           ))
         )}
       </ul>
+
+      {/* Pagination 부분 */}
+      {stores?.totalPage && (
+        <Pagination total={stores?.totalPage} page={page} />
+      )}
     </div>
   );
 }
